@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NoeTech Paint Shop System</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Arial,sans-serif;background:#f5f5f5;color:#222;font-size:14px;}
+.app{max-width:960px;margin:0 auto;padding:12px;}
+/* HEADER */
+.header{display:flex;align-items:center;justify-content:space-between;background:#0F6E56;color:#fff;padding:12px 16px;border-radius:10px;margin-bottom:10px;}
+.header-left{display:flex;align-items:center;gap:12px;}
+.logo{width:36px;height:36px;background:rgba(255,255,255,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.header-title{font-size:15px;font-weight:700;}
+.header-sub{font-size:11px;opacity:0.8;}
+.role-badge{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;cursor:pointer;}
+/* LOGIN */
+.login-screen{display:flex;align-items:center;justify-content:center;min-height:75vh;}
+.login-card{background:#fff;border-radius:14px;padding:32px 28px;width:100%;max-width:380px;box-shadow:0 4px 24px rgba(0,0,0,0.1);}
+.login-title{font-size:16px;font-weight:700;color:#333;margin-bottom:4px;}
+.login-sub{font-size:12px;color:#888;margin-bottom:20px;}
+.role-btn{width:100%;padding:12px;margin-bottom:10px;border-radius:8px;border:1.5px solid #e0e0e0;background:#fff;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:10px;transition:all 0.15s;text-align:left;}
+.role-btn:hover{border-color:#0F6E56;background:#f0faf6;}
+.role-btn.selected{border-color:#0F6E56;background:#d8f4ec;color:#0F6E56;}
+.role-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.pin-wrap{margin-top:14px;}
+.pin-input{width:100%;padding:10px;font-size:20px;letter-spacing:10px;text-align:center;border:1.5px solid #ddd;border-radius:8px;}
+/* TABS */
+.tabs{display:flex;gap:4px;margin-bottom:12px;overflow-x:auto;}
+.tab{flex:1;min-width:70px;padding:8px 4px;font-size:11px;font-weight:600;text-align:center;cursor:pointer;border-radius:8px;color:#555;border:1px solid #ddd;background:#fff;transition:all 0.15s;}
+.tab.active{background:#0F6E56;color:#fff;border-color:#0F6E56;}
+.section{display:none;}
+.section.active{display:block;}
+/* CARDS */
+.card{background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:16px;margin-bottom:12px;}
+.card-title{font-size:13px;font-weight:700;color:#333;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:8px;}
+/* SECTION MINI DASHBOARD */
+.mini-dash{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:12px;}
+.mini-card{border-radius:10px;padding:10px 14px;border:1px solid;}
+.mini-card.green{background:#d8f4ec;border-color:#a8e0cc;color:#0F6E56;}
+.mini-card.orange{background:#fef3e2;border-color:#f9d89a;color:#854F0B;}
+.mini-card.red{background:#ffe8e8;border-color:#f5b8b8;color:#a32d2d;}
+.mini-card.blue{background:#e6f1fb;border-color:#b3d4f5;color:#185FA5;}
+.mini-val{font-size:22px;font-weight:700;margin-bottom:2px;}
+.mini-label{font-size:11px;opacity:0.8;}
+/* FORM ELEMENTS */
+label{font-size:12px;color:#666;display:block;margin-bottom:3px;margin-top:10px;}
+label:first-of-type{margin-top:0;}
+input,select,textarea{width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px;color:#222;background:#fff;}
+input:focus,select:focus{outline:none;border-color:#0F6E56;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+/* TABLES */
+.machine-table{width:100%;border-collapse:collapse;margin-top:8px;}
+.machine-table th{font-size:11px;color:#888;font-weight:600;text-align:left;padding:6px;background:#f8f8f8;border-bottom:1px solid #e0e0e0;}
+.machine-table td{padding:5px 4px;border-bottom:1px solid #f0f0f0;vertical-align:middle;}
+.machine-table td input,.machine-table td select{padding:6px 8px;font-size:12px;}
+.price-cell{font-size:12px;font-weight:600;color:#0F6E56;text-align:right;padding-right:6px;}
+.pay-table{width:100%;border-collapse:collapse;}
+.pay-table th{font-size:11px;color:#888;font-weight:600;text-align:left;padding:7px 8px;background:#f8f8f8;border-bottom:1px solid #e0e0e0;}
+.pay-table td{padding:8px;border-bottom:1px solid #f5f5f5;font-size:12px;}
+/* BUTTONS */
+.del-btn{width:30px;height:30px;background:#fff0f0;border:1px solid #fcc;border-radius:6px;cursor:pointer;font-size:16px;color:#c00;display:flex;align-items:center;justify-content:center;}
+.add-btn{padding:7px 12px;background:#f0faf6;border:1px solid #0F6E56;border-radius:6px;cursor:pointer;font-size:12px;color:#0F6E56;font-weight:600;margin-top:8px;}
+.add-btn:hover{background:#d8f4ec;}
+.submit-btn{width:100%;padding:11px;margin-top:12px;background:#0F6E56;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;}
+.submit-btn:hover{background:#085041;}
+/* BADGES */
+.badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:600;}
+.b-green{background:#d8f4ec;color:#0F6E56;}
+.b-orange{background:#fef3e2;color:#854F0B;}
+.b-red{background:#ffe8e8;color:#a32d2d;}
+/* STATS */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:12px;}
+.stat-card{background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:12px 14px;}
+.stat-label{font-size:11px;color:#888;margin-bottom:3px;}
+.stat-val{font-size:22px;font-weight:700;color:#222;}
+.stat-sub{font-size:10px;color:#aaa;margin-top:2px;}
+.bar-wrap{width:70px;height:6px;background:#eee;border-radius:3px;display:inline-block;vertical-align:middle;}
+.bar{height:6px;border-radius:3px;}
+/* CONFIG */
+.config-block{background:#f8f8f8;border:1px solid #e8e8e8;border-radius:8px;padding:10px 14px;margin-bottom:8px;display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px;}
+.config-label{font-size:13px;color:#333;font-weight:500;}
+.config-sub{font-size:11px;color:#999;}
+.config-input{width:90px;text-align:right;font-size:14px;font-weight:600;border:1px solid #ddd;border-radius:6px;padding:6px 8px;}
+.sec-label{font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin:16px 0 6px;}
+/* MISC */
+.info-box{padding:10px 12px;border-radius:8px;font-size:12px;margin-top:8px;}
+.info-green{background:#d8f4ec;color:#085041;}
+.info-orange{background:#fef3e2;color:#854F0B;}
+.master-status{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:12px;margin-bottom:10px;}
+.ms-ok{background:#d8f4ec;color:#0F6E56;}
+.ms-loading{background:#fef3e2;color:#854F0B;}
+.ms-error{background:#ffe8e8;color:#a32d2d;}
+.toast{position:fixed;bottom:24px;right:20px;background:#0F6E56;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;display:none;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,0.2);}
+.loading-box{text-align:center;padding:24px;color:#aaa;font-size:13px;}
+@media(max-width:600px){.row2{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="header-left">
+      <div class="logo">🎨</div>
+      <div>
+        <div class="header-title">NoeTech Paint Shop System</div>
+        <div class="header-sub">NoeTech International Pvt. Ltd.</div>
+      </div>
+    </div>
+    <div id="role-badge" class="role-badge" onclick="logout()" style="display:none;">
+      👤 <span id="role-name">—</span> &nbsp;🔓
+    </div>
+  </div>
+
+  <!-- LOGIN -->
+  <div id="login-screen" class="login-screen">
+    <div class="login-card">
+      <div class="login-title">🔐 Login</div>
+      <div class="login-sub">Apna role select karein</div>
+      <button class="role-btn" onclick="selectRole('paint')" id="role-btn-paint">
+        <div class="role-icon">🎨</div>
+        <div><div style="font-weight:700;">Paint Supervisor</div><div style="font-size:11px;color:#888;font-weight:400;">Machine return karna</div></div>
+      </button>
+      <button class="role-btn" onclick="selectRole('production')" id="role-btn-production">
+        <div class="role-icon">🏭</div>
+        <div><div style="font-weight:700;">Production Head</div><div style="font-size:11px;color:#888;font-weight:400;">Handover + Quality check</div></div>
+      </button>
+      <button class="role-btn" onclick="selectRole('admin')" id="role-btn-admin">
+        <div class="role-icon">👔</div>
+        <div><div style="font-weight:700;">Admin</div><div style="font-size:11px;color:#888;font-weight:400;">Full access</div></div>
+      </button>
+      <div id="pin-wrap" style="display:none;">
+        <label>PIN daalo</label>
+        <input class="pin-input" type="password" id="pin-input" maxlength="4" placeholder="••••" oninput="checkPin()">
+        <div id="pin-error" style="color:#c00;font-size:11px;margin-top:4px;display:none;">❌ Galat PIN!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="main-app" style="display:none;">
+    <div id="master-status" class="master-status ms-loading">⏳ Loading data from Google Sheet...</div>
+
+    <div class="tabs">
+      <button class="tab active" id="tab-btn-handover" onclick="showTab('handover')">📥 Handover</button>
+      <button class="tab" id="tab-btn-return" onclick="showTab('return')">📤 Return</button>
+      <button class="tab" id="tab-btn-quality" onclick="showTab('quality')">✅ Quality</button>
+      <button class="tab" id="tab-btn-dashboard" onclick="showTab('dashboard')">📊 Dashboard</button>
+      <button class="tab" id="tab-btn-config" onclick="showTab('config')">⚙️ Config</button>
+    </div>
+
+    <!-- HANDOVER -->
+    <div id="tab-handover" class="section active">
+      <!-- Mini Dashboard -->
+      <div class="mini-dash" id="h-mini-dash">
+        <div class="mini-card blue"><div class="mini-val" id="h-total-today">—</div><div class="mini-label">Handed over today</div></div>
+        <div class="mini-card orange"><div class="mini-val" id="h-in-shop">—</div><div class="mini-label">In paint shop</div></div>
+        <div class="mini-card red"><div class="mini-val" id="h-overdue">—</div><div class="mini-label">Overdue machines</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📥 Production → Paint Shop Handover</div>
+        <div class="row2">
+          <div><label>Date</label><input type="date" id="h-date"></div>
+          <div><label>Time</label><input type="time" id="h-time"></div>
+        </div>
+        <label>Production Supervisor Name</label>
+        <input type="text" id="h-supervisor" placeholder="Enter name">
+        <div style="margin-top:14px;margin-bottom:6px;font-size:13px;font-weight:700;">Machine List</div>
+        <div style="overflow-x:auto;">
+          <table class="machine-table">
+            <thead><tr>
+              <th style="width:120px">SR. Number</th>
+              <th style="width:240px">Item Name</th>
+              <th style="width:50px">Qty</th>
+              <th style="width:75px">Rate ₹/kg</th>
+              <th style="width:70px">Price ₹</th>
+              <th style="width:30px"></th>
+            </tr></thead>
+            <tbody id="handover-rows"></tbody>
+          </table>
+        </div>
+        <button class="add-btn" onclick="addHandoverRow()">+ Add Machine</button>
+        <div id="h-batch-total" style="text-align:right;margin-top:8px;font-size:13px;color:#0F6E56;font-weight:700;"></div>
+        <div class="info-box info-green">⏱ DRI: <strong id="dri-label">48 hrs</strong> | Incentive window: <strong id="inc-label">72 hrs</strong></div>
+        <button class="submit-btn" onclick="submitHandover()">Submit Handover →</button>
+      </div>
+    </div>
+
+    <!-- RETURN -->
+    <div id="tab-return" class="section">
+      <!-- Mini Dashboard -->
+      <div class="mini-dash">
+        <div class="mini-card orange"><div class="mini-val" id="r-pending">—</div><div class="mini-label">Pending return</div></div>
+        <div class="mini-card red"><div class="mini-val" id="r-overdue">—</div><div class="mini-label">Overdue (72+ hrs)</div></div>
+        <div class="mini-card green"><div class="mini-val" id="r-done-today">—</div><div class="mini-label">Returned today</div></div>
+      </div>
+      <!-- Overdue alert -->
+      <div id="r-overdue-list" style="display:none;" class="info-box info-orange" style="margin-bottom:10px;"></div>
+      <div class="card">
+        <div class="card-title">📤 Paint Shop → Production Return</div>
+        <div class="row2">
+          <div><label>Return Date</label><input type="date" id="r-date"></div>
+          <div><label>Return Time</label><input type="time" id="r-time"></div>
+        </div>
+        <label>Paint Supervisor Name</label>
+        <input type="text" id="r-supervisor" placeholder="Enter name">
+        <div style="margin-top:14px;margin-bottom:6px;font-size:13px;font-weight:700;">Pending Machines</div>
+        <div id="r-no-pending" style="display:none;padding:14px;background:#fef3e2;border-radius:8px;font-size:13px;color:#854F0B;text-align:center;">⚠️ Koi pending machine nahi hai.</div>
+        <div style="overflow-x:auto;" id="r-table-wrap">
+          <table class="machine-table">
+            <thead><tr>
+              <th style="width:160px">SR. Number</th>
+              <th style="width:220px">Item Name</th>
+              <th style="width:50px">Qty</th>
+              <th style="width:90px">Time Elapsed</th>
+              <th style="width:30px"></th>
+            </tr></thead>
+            <tbody id="return-rows"></tbody>
+          </table>
+        </div>
+        <button class="add-btn" id="r-add-btn" onclick="addReturnRow()">+ Add Machine</button>
+        <button class="submit-btn" onclick="submitReturn()">Submit Return →</button>
+      </div>
+    </div>
+
+    <!-- QUALITY -->
+    <div id="tab-quality" class="section">
+      <!-- Mini Dashboard -->
+      <div class="mini-dash">
+        <div class="mini-card orange"><div class="mini-val" id="q-pending">—</div><div class="mini-label">Quality pending</div></div>
+        <div class="mini-card green"><div class="mini-val" id="q-approved">—</div><div class="mini-label">Approved this week</div></div>
+        <div class="mini-card red"><div class="mini-val" id="q-rejected">—</div><div class="mini-label">Rejected this week</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">✅ Quality Approval — Production Head</div>
+        <label>Production Head Name</label>
+        <input type="text" id="q-head" placeholder="Enter name">
+        <div style="margin-top:14px;margin-bottom:6px;font-size:13px;font-weight:700;">Returned Machines — Quality Pending</div>
+        <div id="q-no-pending" style="display:none;padding:14px;background:#d8f4ec;border-radius:8px;font-size:13px;color:#0F6E56;text-align:center;">✅ Koi quality pending nahi hai!</div>
+        <div style="overflow-x:auto;" id="q-table-wrap">
+          <table class="machine-table">
+            <thead><tr>
+              <th style="width:150px">SR. Number</th>
+              <th style="width:200px">Item Name</th>
+              <th style="width:60px">Hrs</th>
+              <th style="width:160px">Quality Status</th>
+              <th style="width:160px">Remarks</th>
+              <th style="width:30px"></th>
+            </tr></thead>
+            <tbody id="quality-rows"></tbody>
+          </table>
+        </div>
+        <button class="add-btn" id="q-add-btn" onclick="addQualityRow()">+ Add</button>
+        <div style="margin-top:12px;background:#fffbe6;border:1px solid #ffe58f;border-radius:8px;padding:10px 14px;font-size:12px;color:#7d5a00;">
+          ✅ Approved → Full + incentive &nbsp;|&nbsp; ⚠️ Partial → −<span id="partial-pct-label">10</span>% &nbsp;|&nbsp; ❌ Rejected → ₹0
+        </div>
+        <button class="submit-btn" onclick="submitQuality()">Submit Quality →</button>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="tab-dashboard" class="section">
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-label">In Paint Shop</div><div class="stat-val" id="d-active">—</div><div class="stat-sub">machines</div></div>
+        <div class="stat-card"><div class="stat-label">Returned Today</div><div class="stat-val" id="d-returned">—</div><div class="stat-sub">machines</div></div>
+        <div class="stat-card"><div class="stat-label">Overdue</div><div class="stat-val" id="d-overdue" style="color:#c00;">—</div><div class="stat-sub">&gt;72 hrs</div></div>
+        <div class="stat-card"><div class="stat-label">Quality Pending</div><div class="stat-val" id="d-q-pending" style="color:#e67e00;">—</div><div class="stat-sub">machines</div></div>
+        <div class="stat-card"><div class="stat-label">Week Earnings</div><div class="stat-val" id="d-earnings" style="color:#0F6E56;font-size:16px;">₹—</div><div class="stat-sub">paint dept.</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">⏱ Live Tracker</div>
+        <div style="overflow-x:auto;">
+          <table class="pay-table">
+            <thead><tr><th>SR No.</th><th>Item</th><th>Handover</th><th>Hrs</th><th>Status</th></tr></thead>
+            <tbody id="live-tbody"><tr><td colspan="5" style="text-align:center;color:#aaa;padding:20px;">No active machines.</td></tr></tbody>
+          </table>
+        </div>
+        <button class="add-btn" style="margin-top:10px;" onclick="loadAllData()">🔄 Refresh</button>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 All Records</div>
+        <div style="overflow-x:auto;max-height:350px;overflow-y:auto;">
+          <table class="pay-table">
+            <thead><tr><th>SR No.</th><th>Item</th><th>H.Date</th><th>Ret.Date</th><th>Hrs</th><th>Quality</th><th>Base ₹</th><th>Final ₹</th><th>Paid</th></tr></thead>
+            <tbody id="all-records-tbody"><tr><td colspan="9" style="text-align:center;color:#aaa;padding:20px;">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFIG -->
+    <div id="tab-config" class="section">
+      <div class="card">
+        <div class="card-title">⚙️ Config — Master Settings</div>
+        <div class="info-box info-orange" style="margin-bottom:12px;">
+          ℹ️ Config Google Sheet ke <strong>Config tab</strong> se load hoti hai. Wahan seedha edit karo — phir "Reload" dabao.
+        </div>
+        <label>Google Sheet Web App URL</label>
+        <input type="url" id="cfg-sheet-url" placeholder="https://script.google.com/macros/s/...">
+        <button class="add-btn" onclick="reloadAll()" style="margin-top:6px;">🔄 Reload All Data from Sheet</button>
+
+        <div class="sec-label">Current Config (from Sheet)</div>
+        <div id="config-preview"><div class="loading-box">⏳ Loading...</div></div>
+
+        <button class="submit-btn" onclick="saveUrl()">💾 Save URL</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📦 Paint Master (Read Only — Edit in Sheet)</div>
+        <div id="master-preview"><div class="loading-box">⏳ Loading...</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== STATE =====
+var MASTER   = [];
+var RECORDS  = []; // all records from Sheet
+var CFG      = {driTarget:48,incentiveWindow:72,incentive:10,late1:10,late2:20,late3:30,
+                partialDeduction:10,pinPaint:'1111',pinProduction:'2222',pinAdmin:'0000'};
+var SHEET_URL = '';
+var CURRENT_ROLE = null;
+var SELECTED_ROLE = null;
+
+var ROLE_TABS = {
+  paint:      ['return','dashboard'],
+  production: ['handover','quality','dashboard'],
+  admin:      ['handover','return','quality','dashboard','config']
+};
+
+// ===== LOGIN =====
+function selectRole(r){
+  SELECTED_ROLE=r;
+  document.querySelectorAll('.role-btn').forEach(function(b){b.classList.remove('selected');});
+  document.getElementById('role-btn-'+r).classList.add('selected');
+  document.getElementById('pin-wrap').style.display='block';
+  document.getElementById('pin-input').value='';
+  document.getElementById('pin-error').style.display='none';
+  setTimeout(function(){document.getElementById('pin-input').focus();},100);
+}
+
+function checkPin(){
+  var pin=document.getElementById('pin-input').value;
+  if(pin.length<4) return;
+  var correct=SELECTED_ROLE==='paint'?CFG.pinPaint:SELECTED_ROLE==='production'?CFG.pinProduction:CFG.pinAdmin;
+  if(String(pin)===String(correct)){
+    document.getElementById('pin-error').style.display='none';
+    doLogin(SELECTED_ROLE);
+  } else {
+    document.getElementById('pin-error').style.display='block';
+    document.getElementById('pin-input').value='';
+  }
+}
+
+function doLogin(role){
+  CURRENT_ROLE=role;
+  var names={paint:'Paint Supervisor',production:'Production Head',admin:'Admin'};
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('main-app').style.display='block';
+  document.getElementById('role-badge').style.display='flex';
+  document.getElementById('role-name').textContent=names[role];
+  applyRoleTabs(role);
+  showTab(ROLE_TABS[role][0]);
+  if(SHEET_URL) loadAllData();
+  else setMasterStatus('error','⚠️ Sheet URL nahi hai. Admin se lena.');
+}
+
+function applyRoleTabs(role){
+  ['handover','return','quality','dashboard','config'].forEach(function(t){
+    var btn=document.getElementById('tab-btn-'+t);
+    btn.style.display=ROLE_TABS[role].indexOf(t)>=0?'':'none';
+  });
+}
+
+function logout(){
+  if(!confirm('Logout?')) return;
+  CURRENT_ROLE=null; SELECTED_ROLE=null;
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('main-app').style.display='none';
+  document.getElementById('role-badge').style.display='none';
+  document.querySelectorAll('.role-btn').forEach(function(b){b.classList.remove('selected');});
+  document.getElementById('pin-wrap').style.display='none';
+}
+
+// ===== INIT =====
+(function(){
+  var now=new Date();
+  var d=now.toISOString().slice(0,10);
+  var t=now.toTimeString().slice(0,5);
+  document.getElementById('h-date').value=d;
+  document.getElementById('h-time').value=t;
+  document.getElementById('r-date').value=d;
+  document.getElementById('r-time').value=t;
+  var saved=localStorage.getItem('noetech_v3');
+  if(saved){
+    try{var c=JSON.parse(saved);SHEET_URL=c.url||'';if(SHEET_URL)document.getElementById('cfg-sheet-url').value=SHEET_URL;}catch(e){}
+  }
+  // Load config+master before login screen so PINs are correct
+  if(SHEET_URL) preloadConfig();
+})();
+
+function preloadConfig(){
+  fetch(SHEET_URL+'?action=getConfig')
+    .then(function(r){return r.json();})
+    .then(function(res){
+      if(res.data) applyConfig(res.data);
+    }).catch(function(){});
+}
+
+function applyConfig(data){
+  if(data.driTarget)        CFG.driTarget        = parseFloat(data.driTarget)||48;
+  if(data.incentiveWindow)  CFG.incentiveWindow  = parseFloat(data.incentiveWindow)||72;
+  if(data.incentive)        CFG.incentive        = parseFloat(data.incentive)||10;
+  if(data.late1)            CFG.late1            = parseFloat(data.late1)||10;
+  if(data.late2)            CFG.late2            = parseFloat(data.late2)||20;
+  if(data.late3)            CFG.late3            = parseFloat(data.late3)||30;
+  if(data.partialDeduction) CFG.partialDeduction = parseFloat(data.partialDeduction)||10;
+  if(data.pinPaint)        CFG.pinPaint        = String(data.pinPaint);
+  if(data.pinProduction)   CFG.pinProduction   = String(data.pinProduction);
+  if(data.pinAdmin)        CFG.pinAdmin        = String(data.pinAdmin);
+  document.getElementById('dri-label').textContent=CFG.driTarget+' hrs';
+  document.getElementById('inc-label').textContent=CFG.incentiveWindow+' hrs';
+  document.getElementById('partial-pct-label').textContent=CFG.partialDeduction;
+}
+
+// ===== LOAD ALL DATA =====
+function loadAllData(){
+  if(!SHEET_URL){setMasterStatus('error','⚠️ No URL. Config tab mein URL daalo.');return;}
+  setMasterStatus('loading','⏳ Loading data...');
+
+  Promise.all([
+    fetch(SHEET_URL+'?action=getMaster').then(function(r){return r.json();}),
+    fetch(SHEET_URL+'?action=getConfig').then(function(r){return r.json();}),
+    fetch(SHEET_URL+'?action=getRecords').then(function(r){return r.json();})
+  ]).then(function(results){
+    // Master
+    if(results[0].data&&results[0].data.length>0){
+      MASTER=results[0].data.map(function(row){
+        return{name:row['Item Name']||'',weight:parseFloat(row['Weight'])||0,rate:parseFloat(row['Per kg rate'])||0.8};
+      }).filter(function(m){return m.name;});
+      refreshMasterPreview();
+    }
+    // Config
+    if(results[1].data) { applyConfig(results[1].data); renderConfigPreview(results[1].data); }
+    // Records
+    if(results[2].data) RECORDS=results[2].data;
+    else RECORDS=[];
+
+    var pending=getPendingReturn().length;
+    var qPending=getPendingQuality().length;
+    setMasterStatus('ok','✅ Loaded — '+MASTER.length+' items | '+getInShop().length+' in shop | '+pending+' return pending | '+qPending+' quality pending');
+
+    refreshAllForms();
+    refreshMiniDash();
+    refreshDashboard();
+  }).catch(function(e){
+    setMasterStatus('error','❌ Error: '+e.message);
+  });
+}
+
+function reloadAll(){
+  SHEET_URL=document.getElementById('cfg-sheet-url').value.trim();
+  localStorage.setItem('noetech_v3',JSON.stringify({url:SHEET_URL}));
+  loadAllData();
+}
+
+// ===== RECORD HELPERS =====
+function getInShop(){
+  return RECORDS.filter(function(r){return r['SR Number']&&!r['Return Date'];});
+}
+function getPendingReturn(){
+  return RECORDS.filter(function(r){return r['SR Number']&&!r['Return Date'];});
+}
+function getPendingQuality(){
+  // FIX 3: Check both 'Return Date' and 'Return Ts (ms)' — Sheet may return either
+  return RECORDS.filter(function(r){
+    var hasReturn = r['Return Date'] && String(r['Return Date']).trim()!=='';
+    var hasQuality = r['Quality Status'] && String(r['Quality Status']).trim()!=='';
+    return hasReturn && !hasQuality;
+  });
+}
+function getReturnedToday(){
+  var today=new Date().toISOString().slice(0,10);
+  return RECORDS.filter(function(r){return String(r['Return Date']||'').slice(0,10)===today;});
+}
+
+// ===== MINI DASHBOARD =====
+function refreshMiniDash(){
+  var now=Date.now();
+  var inShop=getInShop();
+  var overdue=inShop.filter(function(r){
+    var ts=parseInt(r['Handover Ts (ms)'])||0;
+    return ts&&(now-ts)/3600000>CFG.incentiveWindow;
+  });
+  var today=new Date().toISOString().slice(0,10);
+  var todayHandover=RECORDS.filter(function(r){return String(r['Handover Date']||'').slice(0,10)===today;});
+  var retToday=getReturnedToday();
+  var qPending=getPendingQuality();
+  var qApproved=RECORDS.filter(function(r){return r['Quality Status']==='ok';});
+  var qRejected=RECORDS.filter(function(r){return r['Quality Status']==='reject';});
+
+  // Handover mini
+  setText('h-total-today',todayHandover.length);
+  setText('h-in-shop',inShop.length);
+  setText('h-overdue',overdue.length);
+  // Return mini
+  setText('r-pending',getPendingReturn().length);
+  setText('r-overdue',overdue.length);
+  setText('r-done-today',retToday.length);
+  // Quality mini
+  setText('q-pending',qPending.length);
+  setText('q-approved',qApproved.length);
+  setText('q-rejected',qRejected.length);
+
+  // Overdue alert in return tab
+  var alertDiv=document.getElementById('r-overdue-list');
+  if(overdue.length>0){
+    alertDiv.style.display='block';
+    alertDiv.innerHTML='⚠️ <strong>Overdue machines:</strong> '+overdue.map(function(r){
+      var ts=parseInt(r['Handover Ts (ms)'])||0;
+      var hrs=ts?Math.round((now-ts)/3600000):0;
+      return r['SR Number']+' ('+hrs+' hrs)';
+    }).join(', ');
+  } else {
+    alertDiv.style.display='none';
+  }
+}
+
+// ===== REFRESH ALL FORMS =====
+function refreshAllForms(){
+  document.getElementById('handover-rows').innerHTML='';
+  document.getElementById('return-rows').innerHTML='';
+  document.getElementById('quality-rows').innerHTML='';
+  addHandoverRow();
+  buildReturnRows();
+  buildQualityRows();
+}
+
+// ===== TAB =====
+function showTab(name){
+  if(CURRENT_ROLE&&ROLE_TABS[CURRENT_ROLE].indexOf(name)<0) return;
+  document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  var sec=document.getElementById('tab-'+name);
+  var btn=document.getElementById('tab-btn-'+name);
+  if(sec) sec.classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(name==='dashboard') refreshDashboard();
+  if(name==='return'){buildReturnRows();refreshMiniDash();}
+  if(name==='quality'){buildQualityRows();refreshMiniDash();}
+}
+
+// ===== MASTER =====
+function masterOptions(){
+  if(!MASTER.length) return '<option value="">-- Loading... --</option>';
+  return '<option value="">-- Select Item --</option>'+MASTER.map(function(m){
+    return '<option value="'+m.name+'">'+m.name+' (₹'+(m.weight*m.rate).toFixed(2)+')</option>';
+  }).join('');
+}
+
+function refreshMasterPreview(){
+  var div=document.getElementById('master-preview');
+  if(!MASTER.length){div.innerHTML='<div class="loading-box">No items.</div>';return;}
+  var html='<div style="overflow-x:auto;max-height:280px;overflow-y:auto;"><table class="machine-table"><thead style="position:sticky;top:0;background:#f8f8f8;"><tr><th>#</th><th>Item Name</th><th>Weight</th><th>Rate</th><th>Price ₹</th></tr></thead><tbody>';
+  MASTER.forEach(function(m,i){
+    html+='<tr><td style="color:#aaa;font-size:11px;">'+(i+1)+'</td><td>'+m.name+'</td><td style="text-align:right;">'+m.weight+' kg</td><td style="text-align:right;">₹'+m.rate+'</td><td style="text-align:right;font-weight:700;color:#0F6E56;">₹'+(m.weight*m.rate).toFixed(2)+'</td></tr>';
+  });
+  html+='</tbody></table></div>';
+  div.innerHTML=html;
+}
+
+function renderConfigPreview(data){
+  var div=document.getElementById('config-preview');
+  if(!data){div.innerHTML='<div class="loading-box">No config.</div>';return;}
+  var labels={driTarget:'DRI Target (hrs)',incentiveWindow:'Incentive Window (hrs)',incentive:'Incentive %',
+    late1:'Late Slab 1 %',late2:'Late Slab 2 %',late3:'Late Slab 3 %',partialDeduction:'Partial Deduction %',
+    pinPaint:'Paint PIN',pinProduction:'Production PIN',pinAdmin:'Admin PIN'};
+  var html='';
+  Object.keys(labels).forEach(function(k){
+    var v=data[k]!==undefined?data[k]:'—';
+    var display=(k.indexOf('pin')>=0)?'••••':v;
+    html+='<div class="config-block"><div><div class="config-label">'+labels[k]+'</div></div><div style="font-size:14px;font-weight:700;color:#0F6E56;">'+display+'</div></div>';
+  });
+  div.innerHTML=html;
+}
+
+// ===== HANDOVER =====
+function addHandoverRow(){
+  var tbody=document.getElementById('handover-rows');
+  var tr=document.createElement('tr');
+  tr.innerHTML=
+    '<td><input type="text" placeholder="SR Number" style="width:110px;"></td>'+
+    '<td><select class="item-select" onchange="updateHandoverPrice(this)">'+masterOptions()+'</select></td>'+
+    '<td><input type="number" class="qty-input" value="1" min="1" style="width:50px;" onchange="updateHandoverPrice(this)"></td>'+
+    '<td class="rate-cell" style="text-align:right;font-size:12px;color:#888;">—</td>'+
+    '<td class="price-cell">₹0</td>'+
+    '<td><button class="del-btn" onclick="removeRow(this)">×</button></td>';
+  tbody.appendChild(tr);
+}
+
+function updateHandoverPrice(el){
+  var tr=el.closest('tr');
+  var name=tr.querySelector('.item-select').value;
+  var qty=parseFloat(tr.querySelector('.qty-input').value)||1;
+  var m=MASTER.find(function(x){return x.name===name;});
+  if(m){
+    tr.querySelector('.rate-cell').textContent='₹'+m.rate+'/kg';
+    tr.querySelector('.price-cell').textContent='₹'+(m.weight*m.rate*qty).toFixed(2);
+  } else {
+    tr.querySelector('.rate-cell').textContent='—';
+    tr.querySelector('.price-cell').textContent='₹0';
+  }
+  updateBatchTotal();
+}
+
+function updateBatchTotal(){
+  var cells=document.querySelectorAll('#handover-rows .price-cell');
+  var total=0; cells.forEach(function(c){total+=parseFloat(c.textContent.replace('₹',''))||0;});
+  document.getElementById('h-batch-total').textContent=cells.length?'Batch Total: ₹'+total.toFixed(2):'';
+}
+
+function submitHandover(){
+  var rows=document.querySelectorAll('#handover-rows tr');
+  var date=document.getElementById('h-date').value;
+  var time=document.getElementById('h-time').value;
+  var sup=document.getElementById('h-supervisor').value||'Unknown';
+  var data=[];
+  rows.forEach(function(tr){
+    var sr=tr.querySelector('input[type=text]').value.trim();
+    var item=tr.querySelector('.item-select').value;
+    var qty=parseFloat(tr.querySelector('.qty-input').value)||1;
+    if(sr&&item){
+      var m=MASTER.find(function(x){return x.name===item;});
+      data.push({sr:sr,item:item,qty:qty,weight:m?m.weight:0,rate:m?m.rate:0.8,
+        price:m?parseFloat((m.weight*m.rate*qty).toFixed(2)):0,
+        supervisor:sup,date:date,time:time,handoverTs:new Date(date+'T'+time).getTime()});
+    }
+  });
+  if(!data.length){showToast('❌ Fill at least one machine!');return;}
+  sendToSheet('HANDOVER',data,function(){
+    showToast('✅ '+data.length+' machine(s) submitted!');
+    document.getElementById('handover-rows').innerHTML='';
+    updateBatchTotal();
+    setTimeout(function(){loadAllData();},1500);
+  });
+}
+
+// ===== RETURN =====
+// FIX 1: Form empty khule — user Add button se row add kare
+function buildReturnRows(){
+  var pending=getPendingReturn();
+  var tbody=document.getElementById('return-rows');
+  tbody.innerHTML=''; // always empty — user manually add kare
+  var noPending=document.getElementById('r-no-pending');
+  var tableWrap=document.getElementById('r-table-wrap');
+  var addBtn=document.getElementById('r-add-btn');
+  if(!pending.length){
+    noPending.style.display='block'; tableWrap.style.display='none'; addBtn.style.display='none';
+  } else {
+    noPending.style.display='none'; tableWrap.style.display=''; addBtn.style.display='';
+  }
+}
+
+function addReturnRow(){
+  var pending=getPendingReturn();
+  if(!pending.length){showToast('⚠️ Koi pending machine nahi!');return;}
+  // Already selected SRs — avoid duplicates in same batch
+  var alreadySelected=[];
+  document.querySelectorAll('#return-rows .sr-return-select').forEach(function(s){if(s.value)alreadySelected.push(s.value);});
+  var available=pending.filter(function(r){return alreadySelected.indexOf(r['SR Number'])<0;});
+  if(!available.length){showToast('⚠️ Sabhi pending SR already selected hain!');return;}
+  addReturnRowBlank(alreadySelected);
+}
+
+function addReturnRowBlank(alreadySelected){
+  var tbody=document.getElementById('return-rows');
+  var now=Date.now();
+  var pending=getPendingReturn();
+  if(!alreadySelected) alreadySelected=[];
+  document.querySelectorAll('#return-rows .sr-return-select').forEach(function(s){if(s.value&&alreadySelected.indexOf(s.value)<0)alreadySelected.push(s.value);});
+
+  var srOptions=pending
+    .filter(function(r){return alreadySelected.indexOf(r['SR Number'])<0;})
+    .map(function(r){
+      var ts=parseInt(r['Handover Ts (ms)'])||0;
+      var hrs=ts?Math.round((now-ts)/3600000):0;
+      var flag=hrs>CFG.incentiveWindow?' ⚠️ OVERDUE':hrs>CFG.driTarget?' 🕐 Late':'';
+      return '<option value="'+r['SR Number']+'">'+r['SR Number']+' — '+r['Item Name']+flag+'</option>';
+    }).join('');
+
+  var tr=document.createElement('tr');
+  tr.innerHTML=
+    '<td><select class="sr-return-select" style="width:180px;font-size:12px;" onchange="onReturnSRChange(this)">'+
+      '<option value="">-- Select SR No. --</option>'+srOptions+'</select></td>'+
+    '<td style="font-size:12px;color:#555;padding:0 6px;">—</td>'+
+    '<td><input type="number" value="1" min="1" style="width:50px;"></td>'+
+    '<td style="font-size:12px;font-weight:700;color:#555;">—</td>'+
+    '<td><button class="del-btn" onclick="removeRow(this)">×</button></td>';
+  tbody.appendChild(tr);
+}
+
+function onReturnSRChange(sel){
+  var tr=sel.closest('tr');
+  var sr=sel.value;
+  var rec=RECORDS.find(function(r){return r['SR Number']===sr;});
+  var now=Date.now();
+  if(rec){
+    tr.cells[1].textContent=rec['Item Name'];
+    var ts=parseInt(rec['Handover Ts (ms)'])||0;
+    if(ts){
+      var hrs=Math.round((now-ts)/3600000);
+      var col=hrs>CFG.incentiveWindow?'#c00':hrs>CFG.driTarget?'#e67e00':'#0F6E56';
+      tr.cells[3].innerHTML='<span style="color:'+col+';font-weight:700;">'+hrs+' hrs</span>';
+    }
+  } else {
+    tr.cells[1].textContent='—';
+    tr.cells[3].textContent='—';
+  }
+}
+
+function submitReturn(){
+  var rows=document.querySelectorAll('#return-rows tr');
+  var date=document.getElementById('r-date').value;
+  var time=document.getElementById('r-time').value;
+  var sup=document.getElementById('r-supervisor').value||'Unknown';
+  var data=[];
+  rows.forEach(function(tr){
+    var sr=tr.querySelector('.sr-return-select').value;
+    if(!sr) return;
+    var rec=RECORDS.find(function(r){return String(r['SR Number'])===String(sr);});
+
+    // returnTs — current return date+time
+    var returnTs = new Date(date+'T'+time).getTime();
+
+    // hTs — from record, handle scientific notation & string
+    var hTs = 0;
+    if(rec){
+      var rawHTs = rec['Handover Ts (ms)'];
+      if(rawHTs){
+        // Handle scientific notation like 1.78e+12
+        hTs = Math.round(parseFloat(String(rawHTs)));
+      }
+      // Fallback: compute from Handover Date + Time
+      if(!hTs && rec['Handover Date'] && rec['Handover Time']){
+        try{
+          var hDateStr = String(rec['Handover Date']).slice(0,10);
+          var hTimeStr = String(rec['Handover Time']).slice(0,5);
+          hTs = new Date(hDateStr+'T'+hTimeStr).getTime();
+        }catch(e){}
+      }
+    }
+
+    var hrs = (hTs && returnTs) ? Math.round((returnTs - hTs) / 3600000) : 0;
+    data.push({sr:sr, item:rec?rec['Item Name']:'', supervisor:sup,
+      date:date, time:time, handoverTs:hTs, returnTs:returnTs, hrsElapsed:hrs});
+  });
+  if(!data.length){showToast('❌ Select at least one SR!');return;}
+  sendToSheet('RETURN',data,function(){
+    showToast('✅ '+data.length+' machine(s) returned!');
+    setTimeout(function(){loadAllData();},1500);
+  });
+}
+
+// ===== QUALITY =====
+function buildQualityRows(){
+  // Same as return — empty form, user manually select SR
+  var pending=getPendingQuality();
+  var tbody=document.getElementById('quality-rows');
+  tbody.innerHTML='';
+  var noPending=document.getElementById('q-no-pending');
+  var tableWrap=document.getElementById('q-table-wrap');
+  var addBtn=document.getElementById('q-add-btn');
+  if(!pending.length){
+    noPending.style.display='block'; tableWrap.style.display='none'; addBtn.style.display='none';
+  } else {
+    noPending.style.display='none'; tableWrap.style.display=''; addBtn.style.display='';
+  }
+}
+
+function addQualityRow(){
+  var pending=getPendingQuality();
+  if(!pending.length){showToast('✅ Koi quality pending nahi!');return;}
+  var alreadySelected=[];
+  document.querySelectorAll('#quality-rows .sr-quality-select').forEach(function(s){if(s.value)alreadySelected.push(s.value);});
+  var available=pending.filter(function(r){return alreadySelected.indexOf(r['SR Number'])<0;});
+  if(!available.length){showToast('⚠️ Sabhi quality SR already selected hain!');return;}
+  addQualityRowForRec(null);
+}
+
+function addQualityRowForRec(rec){
+  var tbody=document.getElementById('quality-rows');
+  var pending=getPendingQuality();
+  // Already selected SRs
+  var alreadySelected=[];
+  document.querySelectorAll('#quality-rows .sr-quality-select').forEach(function(s){if(s.value)alreadySelected.push(s.value);});
+
+  var srOptions=pending
+    .filter(function(r){return !rec || r['SR Number']===rec['SR Number'] || alreadySelected.indexOf(r['SR Number'])<0;})
+    .map(function(r){
+      return '<option value="'+r['SR Number']+'"'+(rec&&rec['SR Number']===r['SR Number']?' selected':'')+'>'+r['SR Number']+' — '+r['Item Name']+'</option>';
+    }).join('');
+
+  // FIX 3: Use 'Hrs Elapsed' column from Sheet directly (most reliable)
+  var hrs='—';
+  if(rec){
+    var hrsElapsed=rec['Hrs Elapsed'];
+    if(hrsElapsed&&String(hrsElapsed).trim()!==''){
+      hrs=hrsElapsed+' hrs';
+    } else {
+      // fallback: compute from timestamps
+      var hTs=parseInt(rec['Handover Ts (ms)'])||0;
+      var rTs=parseInt(rec['Return Ts (ms)'])||0;
+      if(hTs&&rTs) hrs=Math.round((rTs-hTs)/3600000)+' hrs';
+    }
+  }
+
+  var hrsColor=hrs==='—'?'#555':parseInt(hrs)>CFG.incentiveWindow?'#c00':parseInt(hrs)>CFG.driTarget?'#e67e00':'#0F6E56';
+
+  var tr=document.createElement('tr');
+  tr.innerHTML=
+    '<td><select class="sr-quality-select" style="width:150px;font-size:12px;" onchange="onQualitySRChange(this)">'+
+      '<option value="">-- Select SR --</option>'+srOptions+'</select></td>'+
+    '<td style="font-size:12px;color:#555;padding:0 6px;">'+(rec?rec['Item Name']:'—')+'</td>'+
+    '<td style="font-size:12px;font-weight:700;color:'+hrsColor+';">'+hrs+'</td>'+
+    '<td><select class="q-status-select" style="font-size:12px;">'+
+      '<option value="">-- Status --</option>'+
+      '<option value="ok">✅ Approved</option>'+
+      '<option value="partial">⚠️ Partial (−'+CFG.partialDeduction+'%)</option>'+
+      '<option value="reject">❌ Rejected</option>'+
+    '</select></td>'+
+    '<td><input type="text" placeholder="Remarks" style="font-size:12px;"></td>'+
+    '<td><button class="del-btn" onclick="removeRow(this)">×</button></td>';
+  tbody.appendChild(tr);
+}
+
+function onQualitySRChange(sel){
+  var tr=sel.closest('tr');
+  var sr=sel.value;
+  var rec=RECORDS.find(function(r){return r['SR Number']===sr;});
+  if(rec){
+    tr.cells[1].textContent=rec['Item Name'];
+    var hTs=parseInt(rec['Handover Ts (ms)'])||0;
+    var rTs=parseInt(rec['Return Ts (ms)'])||0;
+    tr.cells[2].textContent=hTs&&rTs?Math.round((rTs-hTs)/3600000)+' hrs':'—';
+  }
+}
+
+function submitQuality(){
+  var rows=document.querySelectorAll('#quality-rows tr');
+  var head=document.getElementById('q-head').value||'Unknown';
+  var data=[];
+  rows.forEach(function(tr){
+    var srSel=tr.querySelector('.sr-quality-select');
+    var statusSel=tr.querySelector('.q-status-select');
+    var remarkInput=tr.querySelector('input[type=text]');
+    if(!srSel||!statusSel) return;
+    var sr=srSel.value;
+    var status=statusSel.value;
+    var remarks=remarkInput?remarkInput.value:'';
+    var rec=RECORDS.find(function(r){return r['SR Number']===sr;});
+    if(sr&&status){
+      data.push({sr:sr,item:rec?rec['Item Name']:'',status:status,remarks:remarks,head:head});
+    }
+  });
+  if(!data.length){showToast('❌ SR aur Status dono select karo!');return;}
+  sendToSheet('QUALITY',data,function(){
+    showToast('✅ '+data.length+' quality decision(s) saved!');
+    setTimeout(function(){loadAllData();},1500);
+  });
+}
+
+// ===== DASHBOARD =====
+function refreshDashboard(){
+  var now=Date.now();
+  var inShop=getInShop();
+  var overdue=inShop.filter(function(r){var ts=parseInt(r['Handover Ts (ms)'])||0;return ts&&(now-ts)/3600000>CFG.incentiveWindow;});
+  var retToday=getReturnedToday();
+  var qPending=getPendingQuality();
+  var totalEarnings=RECORDS.reduce(function(s,r){return s+(parseFloat(r['Final Payment (₹)'])||0);},0);
+
+  setText('d-active',inShop.length);
+  setText('d-returned',retToday.length);
+  setText('d-overdue',overdue.length);
+  setText('d-q-pending',qPending.length);
+  setText('d-earnings','₹'+totalEarnings.toFixed(2));
+
+  // Live tracker
+  var tbody=document.getElementById('live-tbody');
+  if(!inShop.length){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:#aaa;padding:20px;">No machines in paint shop.</td></tr>';}
+  else{
+    tbody.innerHTML='';
+    inShop.forEach(function(r){
+      var ts=parseInt(r['Handover Ts (ms)'])||0;
+      var hrs=ts?Math.round((now-ts)/3600000):0;
+      var pct=Math.min(hrs/CFG.incentiveWindow*100,100);
+      var col=hrs>CFG.incentiveWindow?'#e24b4a':hrs>CFG.driTarget?'#ef9f27':'#1D9E75';
+      var badge=hrs>CFG.incentiveWindow?'<span class="badge b-red">Overdue</span>':hrs>CFG.driTarget?'<span class="badge b-orange">Nearing</span>':'<span class="badge b-green">On track</span>';
+      var tr=document.createElement('tr');
+      tr.innerHTML='<td>'+r['SR Number']+'</td><td style="font-size:12px;">'+r['Item Name']+'</td>'+
+        '<td style="font-size:11px;color:#888;">'+r['Handover Date']+'</td>'+
+        '<td><div style="display:flex;align-items:center;gap:6px;"><div class="bar-wrap"><div class="bar" style="width:'+pct+'%;background:'+col+';"></div></div><span style="color:'+col+';font-weight:600;font-size:12px;">'+hrs+' hrs</span></div></td>'+
+        '<td>'+badge+'</td>';
+      tbody.appendChild(tr);
+    });
+  }
+
+  // All records
+  var allTbody=document.getElementById('all-records-tbody');
+  if(!RECORDS.length){allTbody.innerHTML='<tr><td colspan="9" style="text-align:center;color:#aaa;padding:20px;">No records yet.</td></tr>';}
+  else{
+    allTbody.innerHTML='';
+    RECORDS.forEach(function(r){
+      var q=r['Quality Status']||'';
+      var qBadge=q==='ok'?'<span class="badge b-green">✅</span>':q==='partial'?'<span class="badge b-orange">⚠️</span>':q==='reject'?'<span class="badge b-red">❌</span>':'<span style="color:#aaa;">—</span>';
+      var paid=r['Payment Done']==='YES'?'<span class="badge b-green">✅ Paid</span>':'<span class="badge b-orange">Pending</span>';
+      var tr=document.createElement('tr');
+      tr.innerHTML='<td>'+r['SR Number']+'</td>'+
+        '<td style="font-size:11px;">'+r['Item Name']+'</td>'+
+        '<td style="font-size:11px;">'+r['Handover Date']+'</td>'+
+        '<td style="font-size:11px;">'+(r['Return Date']||'—')+'</td>'+
+        '<td>'+(r['Hrs Elapsed']||'—')+'</td>'+
+        '<td>'+qBadge+'</td>'+
+        '<td>₹'+(r['Base Price (₹)']||0)+'</td>'+
+        '<td style="font-weight:700;color:#0F6E56;">₹'+(r['Final Payment (₹)']||0)+'</td>'+
+        '<td>'+paid+'</td>';
+      allTbody.appendChild(tr);
+    });
+  }
+}
+
+// ===== CONFIG =====
+function saveUrl(){
+  SHEET_URL=document.getElementById('cfg-sheet-url').value.trim();
+  localStorage.setItem('noetech_v3',JSON.stringify({url:SHEET_URL}));
+  showToast('✅ URL saved! Reloading data...');
+  loadAllData();
+}
+
+function setMasterStatus(type,msg){
+  var el=document.getElementById('master-status');
+  el.className='master-status ms-'+type; el.textContent=msg;
+}
+
+// ===== SHEET API =====
+function sendToSheet(type,data,callback){
+  if(!SHEET_URL){showToast('❌ No Sheet URL!');return;}
+  setMasterStatus('loading','⏳ Saving...');
+  fetch(SHEET_URL,{
+    method:'POST',mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({type:type,data:data})
+  }).then(function(){
+    if(callback) callback();
+  }).catch(function(){
+    if(callback) callback(); // no-cors pe response nahi aata, assume success
+  });
+}
+
+// ===== UTILS =====
+function removeRow(btn){var row=btn.closest('tr');if(row)row.remove();updateBatchTotal();}
+function setText(id,val){var el=document.getElementById(id);if(el)el.textContent=val;}
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.style.display='block';clearTimeout(t._to);t._to=setTimeout(function(){t.style.display='none';},2800);}
+</script>
+</body>
+</html>
